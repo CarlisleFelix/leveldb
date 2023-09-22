@@ -39,6 +39,7 @@ void WriteBatch::Clear() {
 
 size_t WriteBatch::ApproximateSize() const { return rep_.size(); }
 
+//根据handler进行处理本batch内的所有记录
 Status WriteBatch::Iterate(Handler* handler) const {
   Slice input(rep_);
   if (input.size() < kHeader) {
@@ -79,6 +80,7 @@ Status WriteBatch::Iterate(Handler* handler) const {
   }
 }
 
+//设置write batch头的
 int WriteBatchInternal::Count(const WriteBatch* b) {
   return DecodeFixed32(b->rep_.data() + 8);
 }
@@ -95,6 +97,7 @@ void WriteBatchInternal::SetSequence(WriteBatch* b, SequenceNumber seq) {
   EncodeFixed64(&b->rep_[0], seq);
 }
 
+//加入一个记录
 void WriteBatch::Put(const Slice& key, const Slice& value) {
   WriteBatchInternal::SetCount(this, WriteBatchInternal::Count(this) + 1);
   rep_.push_back(static_cast<char>(kTypeValue));
@@ -113,6 +116,8 @@ void WriteBatch::Append(const WriteBatch& source) {
 }
 
 namespace {
+
+//用于插入memtable的handler,这里面sequence和之前不太一样啊,这里面其实设置为batch的sequencenumber
 class MemTableInserter : public WriteBatch::Handler {
  public:
   SequenceNumber sequence_;
@@ -129,6 +134,7 @@ class MemTableInserter : public WriteBatch::Handler {
 };
 }  // namespace
 
+//
 Status WriteBatchInternal::InsertInto(const WriteBatch* b, MemTable* memtable) {
   MemTableInserter inserter;
   inserter.sequence_ = WriteBatchInternal::Sequence(b);
@@ -136,11 +142,13 @@ Status WriteBatchInternal::InsertInto(const WriteBatch* b, MemTable* memtable) {
   return b->Iterate(&inserter);
 }
 
+//直接把contents里面的东西加入到write_batch中
 void WriteBatchInternal::SetContents(WriteBatch* b, const Slice& contents) {
   assert(contents.size() >= kHeader);
   b->rep_.assign(contents.data(), contents.size());
 }
 
+//src里面的写加到dst里面
 void WriteBatchInternal::Append(WriteBatch* dst, const WriteBatch* src) {
   SetCount(dst, Count(dst) + Count(src));
   assert(src->rep_.size() >= kHeader);

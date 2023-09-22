@@ -13,6 +13,8 @@
 
 namespace leveldb {
 
+//done
+
 class Arena {
  public:
   Arena();
@@ -51,6 +53,8 @@ class Arena {
   //               accessed without any locking. Is this OK?
   std::atomic<size_t> memory_usage_;
 };
+
+//如果当前快剩余空间足够分配
 
 inline char* Arena::Allocate(size_t bytes) {
   // The semantics of what to return are a bit messy if we allow

@@ -7,6 +7,7 @@
 
 #include <string>
 
+//直方图的各种方法抽象,done
 namespace leveldb {
 
 class Histogram {

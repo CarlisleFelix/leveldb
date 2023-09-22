@@ -14,6 +14,7 @@
 
 #include "port/port.h"
 
+//log的一些辅助函数,done
 namespace leveldb {
 
 class Slice;

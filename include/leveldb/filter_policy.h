@@ -24,6 +24,8 @@ namespace leveldb {
 
 class Slice;
 
+//过滤器的抽象基类,done
+
 class LEVELDB_EXPORT FilterPolicy {
  public:
   virtual ~FilterPolicy();

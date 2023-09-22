@@ -9,6 +9,8 @@
 
 #include "leveldb/export.h"
 
+//关于比较的接口,done
+
 namespace leveldb {
 
 class Slice;
@@ -42,11 +44,15 @@ class LEVELDB_EXPORT Comparator {
   // Advanced functions: these are used to reduce the space requirements
   // for internal data structures like index blocks.
 
+//这个是为了优化索引项空间
+
   // If *start < limit, changes *start to a short string in [start,limit).
   // Simple comparator implementations may return with *start unchanged,
   // i.e., an implementation of this method that does nothing is correct.
   virtual void FindShortestSeparator(std::string* start,
                                      const Slice& limit) const = 0;
+
+//也是为了减小索引项长度
 
   // Changes *key to a short string >= *key.
   // Simple comparator implementations may return with *key unchanged,

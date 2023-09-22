@@ -36,6 +36,7 @@
 
 namespace leveldb {
 
+//跳表实现,done
 template <typename Key, class Comparator>
 class SkipList {
  private:
@@ -139,6 +140,7 @@ class SkipList {
   Random rnd_;
 };
 
+//跳表中节点的实现,有趣的类中实现,应该是每个有数据的节点?????
 // Implementation details follow
 template <typename Key, class Comparator>
 struct SkipList<Key, Comparator>::Node {
@@ -176,6 +178,7 @@ struct SkipList<Key, Comparator>::Node {
   std::atomic<Node*> next_[1];
 };
 
+//有趣的在于可以人为多分配，这样也可以访问到,有趣的placement new
 template <typename Key, class Comparator>
 typename SkipList<Key, Comparator>::Node* SkipList<Key, Comparator>::NewNode(
     const Key& key, int height) {
@@ -201,6 +204,7 @@ inline const Key& SkipList<Key, Comparator>::Iterator::key() const {
   return node_->key;
 }
 
+//第0层就是最低的那个
 template <typename Key, class Comparator>
 inline void SkipList<Key, Comparator>::Iterator::Next() {
   assert(Valid());
@@ -255,6 +259,8 @@ bool SkipList<Key, Comparator>::KeyIsAfterNode(const Key& key, Node* n) const {
   return (n != nullptr) && (compare_(n->key, key) < 0);
 }
 
+
+//重要的寻址方法
 template <typename Key, class Comparator>
 typename SkipList<Key, Comparator>::Node*
 SkipList<Key, Comparator>::FindGreaterOrEqual(const Key& key,
@@ -278,6 +284,7 @@ SkipList<Key, Comparator>::FindGreaterOrEqual(const Key& key,
   }
 }
 
+//重要的寻址方法
 template <typename Key, class Comparator>
 typename SkipList<Key, Comparator>::Node*
 SkipList<Key, Comparator>::FindLessThan(const Key& key) const {

@@ -20,6 +20,7 @@ namespace leveldb {
 
 namespace {
 
+//各种持久性存储的内存抽象,done
 class FileState {
  public:
   // FileStates are reference counted. The initial reference count is zero

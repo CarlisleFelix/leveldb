@@ -24,6 +24,10 @@
 #include "port/port.h"
 #include "port/thread_annotations.h"
 
+//version是一个版本的文件信息，包括各个level里面有什么文件，用filemetadata分层存
+//versionset是存很多版本的，用链表连起来，
+//versionedit记录变化，然后apply，最后增量的versionedit写入manifest文件
+
 namespace leveldb {
 
 namespace log {
@@ -39,11 +43,15 @@ class Version;
 class VersionSet;
 class WritableFile;
 
+//在文件中找到那个key对应的那个文件的索引
+
 // Return the smallest index i such that files[i]->largest >= key.
 // Return files.size() if there is no such file.
 // REQUIRES: "files" contains a sorted list of non-overlapping files.
 int FindFile(const InternalKeyComparator& icmp,
              const std::vector<FileMetaData*>& files, const Slice& key);
+
+//如果指定的files中有部分file有想要的范围
 
 // Returns true iff some file in "files" overlaps the user key range
 // [*smallest,*largest].
@@ -57,6 +65,7 @@ bool SomeFileOverlapsRange(const InternalKeyComparator& icmp,
                            const Slice* smallest_user_key,
                            const Slice* largest_user_key);
 
+//一个版本
 class Version {
  public:
   struct GetStats {
@@ -196,6 +205,7 @@ class VersionSet {
   // Arrange to reuse "file_number" unless a newer file number has
   // already been allocated.
   // REQUIRES: "file_number" was returned by a call to NewFileNumber().
+//只能reuse刚申请的?
   void ReuseFileNumber(uint64_t file_number) {
     if (next_file_number_ == file_number + 1) {
       next_file_number_ = file_number;
@@ -248,6 +258,8 @@ class VersionSet {
   // The caller should delete the iterator when no longer needed.
   Iterator* MakeInputIterator(Compaction* c);
 
+
+//用于判断是否需要size compaction和seek compaction
   // Returns true iff some level needs a compaction.
   bool NeedsCompaction() const {
     Version* v = current_;
@@ -315,6 +327,8 @@ class VersionSet {
   std::string compact_pointer_[config::kNumLevels];
 };
 
+//通过compaction类来记录元数据（major compaction的元数据）
+
 // A Compaction encapsulates information about a compaction.
 class Compaction {
  public:
@@ -363,6 +377,7 @@ class Compaction {
 
   Compaction(const Options* options, int level);
 
+//level是compaction的起始层 input0是level层的文件 input1是level1层的文件 
   int level_;
   uint64_t max_output_file_size_;
   Version* input_version_;

@@ -11,6 +11,9 @@
 
 namespace leveldb {
 
+//对于memtable的操作封装,done
+
+//这里返回了internal key
 static Slice GetLengthPrefixedSlice(const char* data) {
   uint32_t len;
   const char* p = data;
@@ -35,7 +38,7 @@ int MemTable::KeyComparator::operator()(const char* aptr,
 
 // Encode a suitable internal key target for "target" and return it.
 // Uses *scratch as scratch space, and the returned pointer will point
-// into this scratch space.
+// into this scratch space. 这里target是internelkey，把它变成一个skiplistkey然后加进去
 static const char* EncodeKey(std::string* scratch, const Slice& target) {
   scratch->clear();
   PutVarint32(scratch, target.size());
@@ -73,6 +76,7 @@ class MemTableIterator : public Iterator {
 
 Iterator* MemTable::NewIterator() { return new MemTableIterator(&table_); }
 
+//很重要的方法，很有趣
 void MemTable::Add(SequenceNumber s, ValueType type, const Slice& key,
                    const Slice& value) {
   // Format of an entry is concatenation of:

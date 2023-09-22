@@ -26,6 +26,8 @@ class Version;
 class VersionEdit;
 class VersionSet;
 
+//这个应该是db的具体实现的类，主要是一些声明,包括compaction,done
+
 class DBImpl : public DB {
  public:
   DBImpl(const Options& options, const std::string& dbname);
@@ -76,6 +78,8 @@ class DBImpl : public DB {
   struct CompactionState;
   struct Writer;
 
+//人工强制compaction的结构
+
   // Information for a manual compaction
   struct ManualCompaction {
     int level;
@@ -85,6 +89,7 @@ class DBImpl : public DB {
     InternalKey tmp_storage;   // Used to keep track of compaction progress
   };
 
+//compaction的统计数据
   // Per level compaction stats.  stats_[level] stores the stats for
   // compactions that produced data for the specified "level".
   struct CompactionStats {
@@ -118,6 +123,7 @@ class DBImpl : public DB {
   // Delete any unneeded files and stale in-memory entries.
   void RemoveObsoleteFiles() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
+//compaction目前在内存中的memtable?
   // Compact the in-memory write buffer to disk.  Switches to a new
   // log-file/memtable and writes a new descriptor iff successful.
   // Errors are recorded in bg_error_.

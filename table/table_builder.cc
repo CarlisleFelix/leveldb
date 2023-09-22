@@ -18,6 +18,7 @@
 
 namespace leveldb {
 
+//类中结构体的写法,done
 struct TableBuilder::Rep {
   Rep(const Options& opt, WritableFile* f)
       : options(opt),
@@ -62,6 +63,7 @@ struct TableBuilder::Rep {
   std::string compressed_output;
 };
 
+//先准备一个空的过滤块
 TableBuilder::TableBuilder(const Options& options, WritableFile* file)
     : rep_(new Rep(options, file)) {
   if (rep_->filter_block != nullptr) {
@@ -91,6 +93,7 @@ Status TableBuilder::ChangeOptions(const Options& options) {
   return Status::OK();
 }
 
+//加一条记录
 void TableBuilder::Add(const Slice& key, const Slice& value) {
   Rep* r = rep_;
   assert(!r->closed);
@@ -99,6 +102,7 @@ void TableBuilder::Add(const Slice& key, const Slice& value) {
     assert(r->options.comparator->Compare(key, Slice(r->last_key)) > 0);
   }
 
+  //如果这个sign为真，那要比较下这个block的最新的key和上个block最老的key，然后加入在index block里面加一条记录
   if (r->pending_index_entry) {
     assert(r->data_block.empty());
     r->options.comparator->FindShortestSeparator(&r->last_key, key);
@@ -108,20 +112,24 @@ void TableBuilder::Add(const Slice& key, const Slice& value) {
     r->pending_index_entry = false;
   }
 
+  //如果设置了过滤块的话,向过滤块中添加记录
   if (r->filter_block != nullptr) {
     r->filter_block->AddKey(key);
   }
 
+  //然后再向data block里面加东西
   r->last_key.assign(key.data(), key.size());
   r->num_entries++;
   r->data_block.Add(key, value);
 
+  //如果当前块的大小到了option中的大小，flush?
   const size_t estimated_block_size = r->data_block.CurrentSizeEstimate();
   if (estimated_block_size >= r->options.block_size) {
     Flush();
   }
 }
 
+//看起来应该是把当前的数据块写入到文件中,同时新启数据块和过滤块?
 void TableBuilder::Flush() {
   Rep* r = rep_;
   assert(!r->closed);
@@ -138,6 +146,7 @@ void TableBuilder::Flush() {
   }
 }
 
+//写入块，根据不同类型
 void TableBuilder::WriteBlock(BlockBuilder* block, BlockHandle* handle) {
   // File format contains a sequence of blocks where each block has:
   //    block_data: uint8[n]
@@ -189,6 +198,7 @@ void TableBuilder::WriteBlock(BlockBuilder* block, BlockHandle* handle) {
   block->Reset();
 }
 
+//写入文件并且加上压缩类型和crc，这个handle是用于返回额外信息的
 void TableBuilder::WriteRawBlock(const Slice& block_contents,
                                  CompressionType type, BlockHandle* handle) {
   Rep* r = rep_;
@@ -210,6 +220,7 @@ void TableBuilder::WriteRawBlock(const Slice& block_contents,
 
 Status TableBuilder::status() const { return rep_->status; }
 
+//写完整个sstable，
 Status TableBuilder::Finish() {
   Rep* r = rep_;
   Flush();
@@ -218,12 +229,15 @@ Status TableBuilder::Finish() {
 
   BlockHandle filter_block_handle, metaindex_block_handle, index_block_handle;
 
+//先写filterblock
+
   // Write filter block
   if (ok() && r->filter_block != nullptr) {
     WriteRawBlock(r->filter_block->Finish(), kNoCompression,
                   &filter_block_handle);
   }
 
+//再写metaindexblock，里面只有指向filterblock的handle
   // Write metaindex block
   if (ok()) {
     BlockBuilder meta_index_block(&r->options);
@@ -240,6 +254,7 @@ Status TableBuilder::Finish() {
     WriteBlock(&meta_index_block, &metaindex_block_handle);
   }
 
+//写indexblock
   // Write index block
   if (ok()) {
     if (r->pending_index_entry) {
@@ -252,6 +267,7 @@ Status TableBuilder::Finish() {
     WriteBlock(&r->index_block, &index_block_handle);
   }
 
+//写footer
   // Write footer
   if (ok()) {
     Footer footer;

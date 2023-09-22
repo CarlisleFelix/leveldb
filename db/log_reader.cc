@@ -10,6 +10,8 @@
 #include "util/coding.h"
 #include "util/crc32c.h"
 
+//这个有点没看懂
+
 namespace leveldb {
 namespace log {
 
@@ -30,11 +32,16 @@ Reader::Reader(SequentialFile* file, Reporter* reporter, bool checksum,
 
 Reader::~Reader() { delete[] backing_store_; }
 
+//直接跳到initial位置
+
 bool Reader::SkipToInitialBlock() {
   const size_t offset_in_block = initial_offset_ % kBlockSize;
   uint64_t block_start_location = initial_offset_ - offset_in_block;
 
   // Don't search a block if we'd be in the trailer
+
+  //如果这个块里面剩余字节不足6字节了，那装不下头部所以直接去下一个块
+
   if (offset_in_block > kBlockSize - 6) {
     block_start_location += kBlockSize;
   }
@@ -54,6 +61,7 @@ bool Reader::SkipToInitialBlock() {
 }
 
 bool Reader::ReadRecord(Slice* record, std::string* scratch) {
+//初始状态，还没跳过，就先跳到指定位置
   if (last_record_offset_ < initial_offset_) {
     if (!SkipToInitialBlock()) {
       return false;
@@ -68,6 +76,7 @@ bool Reader::ReadRecord(Slice* record, std::string* scratch) {
   uint64_t prospective_record_offset = 0;
 
   Slice fragment;
+//循环读取
   while (true) {
     const unsigned int record_type = ReadPhysicalRecord(&fragment);
 
@@ -77,6 +86,7 @@ bool Reader::ReadRecord(Slice* record, std::string* scratch) {
     uint64_t physical_record_offset =
         end_of_buffer_offset_ - buffer_.size() - kHeaderSize - fragment.size();
 
+//resyning似乎代表有可能是中间的记录，需要继续读才好
     if (resyncing_) {
       if (record_type == kMiddleType) {
         continue;
@@ -175,6 +185,7 @@ bool Reader::ReadRecord(Slice* record, std::string* scratch) {
 
 uint64_t Reader::LastRecordOffset() { return last_record_offset_; }
 
+//这个bytes是什么玩意????
 void Reader::ReportCorruption(uint64_t bytes, const char* reason) {
   ReportDrop(bytes, Status::Corruption(reason));
 }
@@ -186,11 +197,15 @@ void Reader::ReportDrop(uint64_t bytes, const Status& reason) {
   }
 }
 
+//读一条log，result返回的是记录本身，函数返回type
 unsigned int Reader::ReadPhysicalRecord(Slice* result) {
   while (true) {
+//一块一块的读入buffer，然后一个fragment一分析
     if (buffer_.size() < kHeaderSize) {
       if (!eof_) {
         // Last read was a full read, so this is a trailer to skip
+
+//这种情况表明buffer里面的是填的0，所以跳过
         buffer_.clear();
         Status status = file_->Read(kBlockSize, &buffer_, backing_store_);
         end_of_buffer_offset_ += buffer_.size();
@@ -199,10 +214,12 @@ unsigned int Reader::ReadPhysicalRecord(Slice* result) {
           ReportDrop(kBlockSize, status);
           eof_ = true;
           return kEof;
+//如果没有读满一个块表明文件结束了
         } else if (buffer_.size() < kBlockSize) {
           eof_ = true;
         }
         continue;
+//如果已经结束了说明写出了问题?不过问题不大就返回就行?
       } else {
         // Note that if buffer_ is non-empty, we have a truncated header at the
         // end of the file, which can be caused by the writer crashing in the
@@ -219,6 +236,7 @@ unsigned int Reader::ReadPhysicalRecord(Slice* result) {
     const uint32_t b = static_cast<uint32_t>(header[5]) & 0xff;
     const unsigned int type = header[6];
     const uint32_t length = a | (b << 8);
+//长度有问题，这里面好像是有问题的长度???
     if (kHeaderSize + length > buffer_.size()) {
       size_t drop_size = buffer_.size();
       buffer_.clear();
@@ -231,7 +249,7 @@ unsigned int Reader::ReadPhysicalRecord(Slice* result) {
       // Don't report a corruption.
       return kEof;
     }
-
+// 这个是什么玩意?????
     if (type == kZeroType && length == 0) {
       // Skip zero length record without reporting any drops since
       // such records are produced by the mmap based writing code in
@@ -239,7 +257,7 @@ unsigned int Reader::ReadPhysicalRecord(Slice* result) {
       buffer_.clear();
       return kBadRecord;
     }
-
+// 检查校验和
     // Check crc
     if (checksum_) {
       uint32_t expected_crc = crc32c::Unmask(DecodeFixed32(header));
@@ -258,6 +276,7 @@ unsigned int Reader::ReadPhysicalRecord(Slice* result) {
 
     buffer_.remove_prefix(kHeaderSize + length);
 
+//如果这条记录开始于init offset之前那就跳过
     // Skip physical record that started before initial_offset_
     if (end_of_buffer_offset_ - buffer_.size() - kHeaderSize - length <
         initial_offset_) {

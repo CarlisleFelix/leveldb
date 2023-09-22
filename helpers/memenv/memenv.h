@@ -11,6 +11,8 @@ namespace leveldb {
 
 class Env;
 
+//是将所有持久性存储移动到内存的意思?done
+
 // Returns a new environment that stores its data in memory and delegates
 // all non-file-storage tasks to base_env. The caller must delete the result
 // when it is no longer needed.

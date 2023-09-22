@@ -8,6 +8,7 @@
 #include "port/port.h"
 #include "port/thread_annotations.h"
 
+//获取式的锁,done
 namespace leveldb {
 
 // Helper class that locks a mutex on construction and unlocks the mutex when

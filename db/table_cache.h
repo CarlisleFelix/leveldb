@@ -15,6 +15,8 @@
 #include "leveldb/table.h"
 #include "port/port.h"
 
+//对cache进行了封装,好像用于sstable的缓存,done
+
 namespace leveldb {
 
 class Env;

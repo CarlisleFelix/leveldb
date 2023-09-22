@@ -37,6 +37,8 @@
 
 namespace leveldb {
 
+//块的各种填写
+
 BlockBuilder::BlockBuilder(const Options* options)
     : options_(options), restarts_(), counter_(0), finished_(false) {
   assert(options->block_restart_interval >= 1);
@@ -52,12 +54,14 @@ void BlockBuilder::Reset() {
   last_key_.clear();
 }
 
+//已经填写的内容,末尾要加上的内容
 size_t BlockBuilder::CurrentSizeEstimate() const {
   return (buffer_.size() +                       // Raw data buffer
           restarts_.size() * sizeof(uint32_t) +  // Restart array
           sizeof(uint32_t));                     // Restart array length
 }
 
+//结尾的时候把restart放上去
 Slice BlockBuilder::Finish() {
   // Append restart array
   for (size_t i = 0; i < restarts_.size(); i++) {
@@ -68,6 +72,7 @@ Slice BlockBuilder::Finish() {
   return Slice(buffer_);
 }
 
+//向数据块中加入kv对，计算各种公共前缀长度等等
 void BlockBuilder::Add(const Slice& key, const Slice& value) {
   Slice last_key_piece(last_key_);
   assert(!finished_);

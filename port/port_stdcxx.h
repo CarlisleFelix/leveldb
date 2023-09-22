@@ -42,6 +42,8 @@
 
 #include "port/thread_annotations.h"
 
+//这个port类好像是包装类,done
+
 namespace leveldb {
 namespace port {
 

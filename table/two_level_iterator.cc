@@ -13,6 +13,8 @@ namespace leveldb {
 
 namespace {
 
+//每次运行一次给定的function
+
 typedef Iterator* (*BlockFunction)(void*, const ReadOptions&, const Slice&);
 
 class TwoLevelIterator : public Iterator {
@@ -112,6 +114,7 @@ void TwoLevelIterator::Prev() {
   SkipEmptyDataBlocksBackward();
 }
 
+//index和data一起向后挪
 void TwoLevelIterator::SkipEmptyDataBlocksForward() {
   while (data_iter_.iter() == nullptr || !data_iter_.Valid()) {
     // Move to next block
@@ -125,6 +128,7 @@ void TwoLevelIterator::SkipEmptyDataBlocksForward() {
   }
 }
 
+//index和data一起向后挪~
 void TwoLevelIterator::SkipEmptyDataBlocksBackward() {
   while (data_iter_.iter() == nullptr || !data_iter_.Valid()) {
     // Move to next block
@@ -138,11 +142,13 @@ void TwoLevelIterator::SkipEmptyDataBlocksBackward() {
   }
 }
 
+//设置data_iter
 void TwoLevelIterator::SetDataIterator(Iterator* data_iter) {
   if (data_iter_.iter() != nullptr) SaveError(data_iter_.status());
   data_iter_.Set(data_iter);
 }
 
+//设置datablock相关,运行一次指定的函数?????????
 void TwoLevelIterator::InitDataBlock() {
   if (!index_iter_.Valid()) {
     SetDataIterator(nullptr);

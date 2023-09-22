@@ -8,6 +8,8 @@
 #include "leveldb/iterator.h"
 #include "leveldb/slice.h"
 
+//iterator的包装类,加了一点点的缓存功能
+
 namespace leveldb {
 
 // A internal wrapper class with an interface similar to Iterator that

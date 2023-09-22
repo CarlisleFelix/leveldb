@@ -8,6 +8,9 @@
 
 // This workaround can be removed when leveldb::Env::DeleteFile is removed.
 // See env.h for justification.
+
+//读写文件等的封装
+
 #if defined(_WIN32) && defined(LEVELDB_DELETEFILE_UNDEFINED)
 #undef DeleteFile
 #endif

@@ -14,6 +14,8 @@
 #include "leveldb/status.h"
 #include "port/port.h"
 
+//运行数据库的时候产生的文件,各种文件的规范命名
+
 namespace leveldb {
 
 class Env;

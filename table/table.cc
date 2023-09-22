@@ -17,6 +17,8 @@
 
 namespace leveldb {
 
+//table的实现,done
+
 struct Table::Rep {
   ~Rep() {
     delete filter;
@@ -42,6 +44,7 @@ Status Table::Open(const Options& options, RandomAccessFile* file,
     return Status::Corruption("file is too short to be an sstable");
   }
 
+//先读入footer
   char footer_space[Footer::kEncodedLength];
   Slice footer_input;
   Status s = file->Read(size - Footer::kEncodedLength, Footer::kEncodedLength,
@@ -52,6 +55,7 @@ Status Table::Open(const Options& options, RandomAccessFile* file,
   s = footer.DecodeFrom(&footer_input);
   if (!s.ok()) return s;
 
+//再读index block，注意index block是 而不是布隆过滤器
   // Read the index block
   BlockContents index_block_contents;
   ReadOptions opt;
@@ -60,6 +64,7 @@ Status Table::Open(const Options& options, RandomAccessFile* file,
   }
   s = ReadBlock(file, opt, footer.index_handle(), &index_block_contents);
 
+//成功读了的话就构造一个table返回
   if (s.ok()) {
     // We've successfully read the footer and the index block: we're
     // ready to serve requests.
@@ -79,6 +84,7 @@ Status Table::Open(const Options& options, RandomAccessFile* file,
   return s;
 }
 
+//从footer里面读各种元数据进行初始化??，主要是meta block，也就是布隆过滤器
 void Table::ReadMeta(const Footer& footer) {
   if (rep_->options.filter_policy == nullptr) {
     return;  // Do not need any metadata
@@ -90,6 +96,7 @@ void Table::ReadMeta(const Footer& footer) {
   if (rep_->options.paranoid_checks) {
     opt.verify_checksums = true;
   }
+//读不进来就算了，没有布隆过滤器也无所谓
   BlockContents contents;
   if (!ReadBlock(rep_->file, opt, footer.metaindex_handle(), &contents).ok()) {
     // Do not propagate errors since meta info is not needed for operation
@@ -97,10 +104,12 @@ void Table::ReadMeta(const Footer& footer) {
   }
   Block* meta = new Block(contents);
 
+//在meta index block中查找，这里的kv应该是过滤器名字和偏移??
   Iterator* iter = meta->NewIterator(BytewiseComparator());
   std::string key = "filter.";
   key.append(rep_->options.filter_policy->Name());
   iter->Seek(key);
+//把真正的布隆过滤器读进来
   if (iter->Valid() && iter->key() == Slice(key)) {
     ReadFilter(iter->value());
   }
@@ -108,6 +117,7 @@ void Table::ReadMeta(const Footer& footer) {
   delete meta;
 }
 
+//根据布隆过滤器的handle把过滤器相关的东西读进来初始化
 void Table::ReadFilter(const Slice& filter_handle_value) {
   Slice v = filter_handle_value;
   BlockHandle filter_handle;
@@ -157,6 +167,7 @@ Iterator* Table::BlockReader(void* arg, const ReadOptions& options,
   Block* block = nullptr;
   Cache::Handle* cache_handle = nullptr;
 
+//根据indexblock里面找到的handle（对应着数据块的）
   BlockHandle handle;
   Slice input = index_value;
   Status s = handle.DecodeFrom(&input);
@@ -191,6 +202,7 @@ Iterator* Table::BlockReader(void* arg, const ReadOptions& options,
     }
   }
 
+//读进来，然后加到cache里面，最后创造一个iter出来
   Iterator* iter;
   if (block != nullptr) {
     iter = block->NewIterator(table->rep_->options.comparator);
@@ -211,9 +223,11 @@ Iterator* Table::NewIterator(const ReadOptions& options) const {
       &Table::BlockReader, const_cast<Table*>(this), options);
 }
 
+//在table中通过key查找value的方法
 Status Table::InternalGet(const ReadOptions& options, const Slice& k, void* arg,
                           void (*handle_result)(void*, const Slice&,
                                                 const Slice&)) {
+//先从indexblock中找到key
   Status s;
   Iterator* iiter = rep_->index_block->NewIterator(rep_->options.comparator);
   iiter->Seek(k);
@@ -221,10 +235,12 @@ Status Table::InternalGet(const ReadOptions& options, const Slice& k, void* arg,
     Slice handle_value = iiter->value();
     FilterBlockReader* filter = rep_->filter;
     BlockHandle handle;
+//去filterblock里面看是否符合
     if (filter != nullptr && handle.DecodeFrom(&handle_value).ok() &&
         !filter->KeyMayMatch(handle.offset(), k)) {
       // Not found
     } else {
+// filter block符合了，找到了并且用传进来的函数处理
       Iterator* block_iter = BlockReader(this, options, iiter->value());
       block_iter->Seek(k);
       if (block_iter->Valid()) {
@@ -241,6 +257,7 @@ Status Table::InternalGet(const ReadOptions& options, const Slice& k, void* arg,
   return s;
 }
 
+//反正就是估计一下这个key在文件中的偏移
 uint64_t Table::ApproximateOffsetOf(const Slice& key) const {
   Iterator* index_iter =
       rep_->index_block->NewIterator(rep_->options.comparator);

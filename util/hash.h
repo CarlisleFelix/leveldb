@@ -10,6 +10,8 @@
 #include <cstddef>
 #include <cstdint>
 
+//为啥这个还要单独写出一个头文件,done
+
 namespace leveldb {
 
 uint32_t Hash(const char* data, size_t n, uint32_t seed);

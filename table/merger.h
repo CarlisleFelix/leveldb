@@ -10,6 +10,8 @@ namespace leveldb {
 class Comparator;
 class Iterator;
 
+//用于合并的iterator,合并成什么呢?done
+
 // Return an iterator that provided the union of the data in
 // children[0,n-1].  Takes ownership of the child iterators and
 // will delete them when the result iterator is deleted.

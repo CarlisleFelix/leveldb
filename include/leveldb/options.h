@@ -9,6 +9,8 @@
 
 #include "leveldb/export.h"
 
+//关于数据库的选项,done
+
 namespace leveldb {
 
 class Cache;
@@ -147,6 +149,8 @@ struct LEVELDB_EXPORT Options {
   const FilterPolicy* filter_policy = nullptr;
 };
 
+//关于读的选项
+
 // Options that control read operations
 struct LEVELDB_EXPORT ReadOptions {
   // If true, all data read from underlying storage will be
@@ -163,6 +167,8 @@ struct LEVELDB_EXPORT ReadOptions {
   // snapshot of the state at the beginning of this read operation.
   const Snapshot* snapshot = nullptr;
 };
+
+//关于写的选项
 
 // Options that control write operations
 struct LEVELDB_EXPORT WriteOptions {

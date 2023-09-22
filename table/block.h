@@ -15,6 +15,8 @@ namespace leveldb {
 struct BlockContents;
 class Comparator;
 
+//各种块的基类,包括数据、索引、过滤等等,done
+
 class Block {
  public:
   // Initialize the block with the specified contents.

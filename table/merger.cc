@@ -10,6 +10,7 @@
 
 namespace leveldb {
 
+//从需要merge的很多iterator中挑选最大最小的东西,done
 namespace {
 class MergingIterator : public Iterator {
  public:
@@ -52,6 +53,7 @@ class MergingIterator : public Iterator {
     direction_ = kForward;
   }
 
+//next有点意思
   void Next() override {
     assert(Valid());
 
@@ -78,6 +80,7 @@ class MergingIterator : public Iterator {
     FindSmallest();
   }
 
+//
   void Prev() override {
     assert(Valid());
 
@@ -145,6 +148,7 @@ class MergingIterator : public Iterator {
   Direction direction_;
 };
 
+//找出所有child里面符合要求的
 void MergingIterator::FindSmallest() {
   IteratorWrapper* smallest = nullptr;
   for (int i = 0; i < n_; i++) {
@@ -160,6 +164,7 @@ void MergingIterator::FindSmallest() {
   current_ = smallest;
 }
 
+//找出所有child里面符合要求的
 void MergingIterator::FindLargest() {
   IteratorWrapper* largest = nullptr;
   for (int i = n_ - 1; i >= 0; i--) {
@@ -176,6 +181,7 @@ void MergingIterator::FindLargest() {
 }
 }  // namespace
 
+//有趣
 Iterator* NewMergingIterator(const Comparator* comparator, Iterator** children,
                              int n) {
   assert(n >= 0);

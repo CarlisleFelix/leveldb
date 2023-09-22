@@ -8,6 +8,8 @@
 
 #include "port/port.h"
 
+//status类的实现
+
 namespace leveldb {
 
 const char* Status::CopyState(const char* state) {

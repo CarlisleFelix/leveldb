@@ -19,6 +19,8 @@
 
 #include "leveldb/env.h"
 
+//posix下logger的实现,挺有意思的,done
+
 namespace leveldb {
 
 class PosixLogger final : public Logger {

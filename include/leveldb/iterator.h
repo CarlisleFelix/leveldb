@@ -21,6 +21,8 @@
 
 namespace leveldb {
 
+//遍历各种结构的iterator的基类,返回的都是void类型,看看怎么实现的,done
+
 class LEVELDB_EXPORT Iterator {
  public:
   Iterator();

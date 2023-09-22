@@ -11,8 +11,11 @@
 #include "util/coding.h"
 #include "util/crc32c.h"
 
+//sstable中各个block操作的具体实现,done
+
 namespace leveldb {
 
+//blockhandle级别的从指定数据中读出
 void BlockHandle::EncodeTo(std::string* dst) const {
   // Sanity check that all fields have been set
   assert(offset_ != ~static_cast<uint64_t>(0));
@@ -29,6 +32,7 @@ Status BlockHandle::DecodeFrom(Slice* input) {
   }
 }
 
+//footer级别的从指定数据中读出
 void Footer::EncodeTo(std::string* dst) const {
   const size_t original_size = dst->size();
   metaindex_handle_.EncodeTo(dst);
@@ -66,6 +70,7 @@ Status Footer::DecodeFrom(Slice* input) {
   return result;
 }
 
+//从文件中读取到blockcontent中
 Status ReadBlock(RandomAccessFile* file, const ReadOptions& options,
                  const BlockHandle& handle, BlockContents* result) {
   result->data = Slice();
@@ -75,7 +80,7 @@ Status ReadBlock(RandomAccessFile* file, const ReadOptions& options,
   // Read the block contents as well as the type/crc footer.
   // See table_builder.cc for the code that built this structure.
   size_t n = static_cast<size_t>(handle.size());
-  char* buf = new char[n + kBlockTrailerSize];
+  char* buf = new char[n + kBlockTrailerSize];//因为每个block序列化的时候都要加一个压缩类型和crc
   Slice contents;
   Status s = file->Read(handle.offset(), n + kBlockTrailerSize, &contents, buf);
   if (!s.ok()) {
@@ -87,6 +92,7 @@ Status ReadBlock(RandomAccessFile* file, const ReadOptions& options,
     return Status::Corruption("truncated block read");
   }
 
+  //读进来之后检查crc是不是对的
   // Check the crc of the type and the block contents
   const char* data = contents.data();  // Pointer to where Read put the data
   if (options.verify_checksums) {
@@ -99,6 +105,7 @@ Status ReadBlock(RandomAccessFile* file, const ReadOptions& options,
     }
   }
 
+  //
   switch (data[n]) {
     case kNoCompression:
       if (data != buf) {

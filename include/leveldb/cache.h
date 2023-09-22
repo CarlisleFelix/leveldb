@@ -31,6 +31,7 @@ class LEVELDB_EXPORT Cache;
 // of Cache uses a least-recently-used eviction policy.
 LEVELDB_EXPORT Cache* NewLRUCache(size_t capacity);
 
+//cache的抽象接口，写法是🐂的,done
 class LEVELDB_EXPORT Cache {
  public:
   Cache() = default;

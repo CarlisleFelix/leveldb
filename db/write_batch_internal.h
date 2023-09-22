@@ -12,6 +12,8 @@ namespace leveldb {
 
 class MemTable;
 
+//批量写入的方法,done
+
 // WriteBatchInternal provides static methods for manipulating a
 // WriteBatch that we don't want in the public WriteBatch interface.
 class WriteBatchInternal {

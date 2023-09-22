@@ -17,6 +17,7 @@ namespace leveldb {
 class InternalKeyComparator;
 class MemTableIterator;
 
+//封装skiplist，提供改和删除的功能,unref中自动析构的实现，done
 class MemTable {
  public:
   // MemTables are reference counted.  The initial reference count

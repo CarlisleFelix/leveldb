@@ -7,6 +7,8 @@
 #include "leveldb/comparator.h"
 #include "leveldb/env.h"
 
+//默认options的实现,done
+
 namespace leveldb {
 
 Options::Options() : comparator(BytewiseComparator()), env(Env::Default()) {}

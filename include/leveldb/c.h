@@ -46,6 +46,8 @@
 
 #include "leveldb/export.h"
 
+//这些是给c语言留下的接口,done
+
 #ifdef __cplusplus
 extern "C" {
 #endif

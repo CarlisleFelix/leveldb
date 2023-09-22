@@ -6,6 +6,8 @@
 
 namespace leveldb {
 
+//done
+
 static const int kBlockSize = 4096;
 
 Arena::Arena()
@@ -17,6 +19,8 @@ Arena::~Arena() {
   }
 }
 
+//当前块空间不够的话就会调用这个
+
 char* Arena::AllocateFallback(size_t bytes) {
   if (bytes > kBlockSize / 4) {
     // Object is more than a quarter of our block size.  Allocate it separately
@@ -24,6 +28,8 @@ char* Arena::AllocateFallback(size_t bytes) {
     char* result = AllocateNewBlock(bytes);
     return result;
   }
+
+  //当前块剩余空间就先不要了
 
   // We waste the remaining space in the current block.
   alloc_ptr_ = AllocateNewBlock(kBlockSize);

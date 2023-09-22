@@ -25,6 +25,8 @@ class BlockBuilder;
 class BlockHandle;
 class WritableFile;
 
+//这个应该是完整的搭建一个sstable所需要的builder,done
+
 class LEVELDB_EXPORT TableBuilder {
  public:
   // Create a builder that will store the contents of the table it is
@@ -50,6 +52,8 @@ class LEVELDB_EXPORT TableBuilder {
   // REQUIRES: key is after any previously added key according to comparator.
   // REQUIRES: Finish(), Abandon() have not been called
   void Add(const Slice& key, const Slice& value);
+
+//这个是可以保证不在一个数据块内?是指不在一个restart里面么
 
   // Advanced operation: flush any buffered key/value pairs to file.
   // Can be used to ensure that two adjacent entries never live in

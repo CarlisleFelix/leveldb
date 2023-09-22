@@ -23,6 +23,8 @@ struct ReadOptions;
 struct WriteOptions;
 class WriteBatch;
 
+//快照、db和range的抽象,done
+
 // Abstract handle to particular state of a DB.
 // A Snapshot is an immutable object and can therefore be safely
 // accessed from multiple threads without any external synchronization.

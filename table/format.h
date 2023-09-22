@@ -18,6 +18,10 @@ class Block;
 class RandomAccessFile;
 struct ReadOptions;
 
+//sstable的格式,done
+
+//blockhandle用于定位到一个文件中的对应block的具体位置,应该是用来存放到数据和索引的结构
+
 // BlockHandle is a pointer to the extent of a file that stores a data
 // block or a meta block.
 class BlockHandle {
@@ -42,6 +46,8 @@ class BlockHandle {
   uint64_t offset_;
   uint64_t size_;
 };
+
+//footer包括两个bloackhandler指向index block和metaindex block，还有一个magic number
 
 // Footer encapsulates the fixed information stored at the tail
 // end of every table file.
@@ -77,6 +83,8 @@ static const uint64_t kTableMagicNumber = 0xdb4775248b80fb57ull;
 
 // 1-byte type + 32-bit crc
 static const size_t kBlockTrailerSize = 5;
+
+//data block filter block meta index block等block的读取结构
 
 struct BlockContents {
   Slice data;           // Actual contents of data

@@ -21,6 +21,8 @@ namespace leveldb {
 
 class FilterPolicy;
 
+//应该是布隆过滤器的块
+
 // A FilterBlockBuilder is used to construct all of the filters for a
 // particular Table.  It generates a single string which is stored as
 // a special block in the Table.
@@ -42,11 +44,11 @@ class FilterBlockBuilder {
   void GenerateFilter();
 
   const FilterPolicy* policy_;
-  std::string keys_;             // Flattened key contents
-  std::vector<size_t> start_;    // Starting index in keys_ of each key
-  std::string result_;           // Filter data computed so far
+  std::string keys_;             // Flattened key contents keys都加到这个里面
+  std::vector<size_t> start_;    // Starting index in keys_ of each key 记录key在keys中开始的地方
+  std::string result_;           // Filter data computed so far 最后应该输出的数据
   std::vector<Slice> tmp_keys_;  // policy_->CreateFilter() argument
-  std::vector<uint32_t> filter_offsets_;
+  std::vector<uint32_t> filter_offsets_; //用于存放每个filter的offset
 };
 
 class FilterBlockReader {

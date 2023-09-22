@@ -13,6 +13,10 @@
 namespace leveldb {
 namespace log {
 
+//实现了写log的抽象,done
+
+//预先计算好不同类型的log对应的crc码
+
 static void InitTypeCrc(uint32_t* type_crc) {
   for (int i = 0; i <= kMaxRecordType; i++) {
     char t = static_cast<char>(i);
@@ -24,6 +28,7 @@ Writer::Writer(WritableFile* dest) : dest_(dest), block_offset_(0) {
   InitTypeCrc(type_crc_);
 }
 
+//这个destlength是怎么用的呢???
 Writer::Writer(WritableFile* dest, uint64_t dest_length)
     : dest_(dest), block_offset_(dest_length % kBlockSize) {
   InitTypeCrc(type_crc_);
@@ -31,6 +36,7 @@ Writer::Writer(WritableFile* dest, uint64_t dest_length)
 
 Writer::~Writer() = default;
 
+//把slice中的记录写到指定文件中，可能分段!
 Status Writer::AddRecord(const Slice& slice) {
   const char* ptr = slice.data();
   size_t left = slice.size();

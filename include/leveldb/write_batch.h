@@ -30,6 +30,8 @@ namespace leveldb {
 
 class Slice;
 
+//一次批处理写的聚合抽象,done
+
 class LEVELDB_EXPORT WriteBatch {
  public:
   class LEVELDB_EXPORT Handler {

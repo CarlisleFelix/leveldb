@@ -15,6 +15,8 @@
 namespace leveldb {
 namespace crc32c {
 
+//crc32具体实现,done
+
 namespace {
 
 const uint32_t kByteExtensionTable[256] = {

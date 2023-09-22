@@ -8,9 +8,11 @@
 #include "leveldb/env.h"
 #include "leveldb/status.h"
 
+//leveldb的一些辅助函数,done????
 namespace leveldb {
 namespace {
 
+//向控制台打印东西
 class StdoutPrinter : public WritableFile {
  public:
   Status Append(const Slice& data) override {
@@ -22,6 +24,7 @@ class StdoutPrinter : public WritableFile {
   Status Sync() override { return Status::OK(); }
 };
 
+//直接打印到控制台
 bool HandleDumpCommand(Env* env, char** files, int num) {
   StdoutPrinter printer;
   bool ok = true;
@@ -44,6 +47,8 @@ static void Usage() {
       "Usage: leveldbutil command...\n"
       "   dump files...         -- dump contents of specified files\n");
 }
+
+//dump指定文件???
 
 int main(int argc, char** argv) {
   leveldb::Env* env = leveldb::Env::Default();

@@ -7,6 +7,8 @@
 
 #include <cstdint>
 
+//随机数生成器，为了在skiplist中使用的，用来决定节点插入的高度等,done
+
 namespace leveldb {
 
 // A very simple random number generator.  Not especially good at

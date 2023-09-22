@@ -13,6 +13,8 @@
 #include "util/logging.h"
 #include "util/no_destructor.h"
 
+//comparator的具体实现，默认为bytewisecomparator,done
+
 namespace leveldb {
 
 Comparator::~Comparator() = default;

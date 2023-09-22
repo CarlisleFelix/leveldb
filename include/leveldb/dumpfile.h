@@ -13,6 +13,8 @@
 
 namespace leveldb {
 
+//把文件中的内容提取到自己定义的文件抽象,done
+
 // Dump the contents of the file named by fname in text format to
 // *dst.  Makes a sequence of dst->Append() calls; each call is passed
 // the newline-terminated text corresponding to a single item found

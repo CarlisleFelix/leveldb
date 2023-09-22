@@ -10,7 +10,7 @@
 #include "port/port.h"
 
 namespace leveldb {
-
+//直方图的各种抽象,done
 const double Histogram::kBucketLimit[kNumBuckets] = {
     1,
     2,

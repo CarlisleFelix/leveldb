@@ -6,6 +6,8 @@
 
 namespace leveldb {
 
+//固定长度就转换成小端然后直接append
+
 void PutFixed32(std::string* dst, uint32_t value) {
   char buf[sizeof(value)];
   EncodeFixed32(buf, value);
@@ -17,6 +19,8 @@ void PutFixed64(std::string* dst, uint64_t value) {
   EncodeFixed64(buf, value);
   dst->append(buf, sizeof(buf));
 }
+
+//变长就先转换为变长再append
 
 char* EncodeVarint32(char* dst, uint32_t v) {
   // Operate on characters as unsigneds
@@ -69,6 +73,8 @@ void PutVarint64(std::string* dst, uint64_t v) {
   dst->append(buf, ptr - buf);
 }
 
+//slice的话就先放变长的slice长度然后再放value
+
 void PutLengthPrefixedSlice(std::string* dst, const Slice& value) {
   PutVarint32(dst, value.size());
   dst->append(value.data(), value.size());
@@ -83,6 +89,7 @@ int VarintLength(uint64_t v) {
   return len;
 }
 
+//将原32位的东西放在value里面并且返回下一个数据的起始指针
 const char* GetVarint32PtrFallback(const char* p, const char* limit,
                                    uint32_t* value) {
   uint32_t result = 0;

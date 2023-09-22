@@ -11,6 +11,8 @@
 #include "leveldb/slice.h"
 #include "leveldb/status.h"
 
+//log的writer抽象
+
 namespace leveldb {
 
 class WritableFile;

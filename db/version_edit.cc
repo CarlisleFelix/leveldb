@@ -9,6 +9,8 @@
 
 namespace leveldb {
 
+//version_edit，这些事需要持久化到manifest文件中的数据，每个versionedit不一定有所有的数据，
+
 // Tag numbers for serialized VersionEdit.  These numbers are written to
 // disk and should not be changed.
 enum Tag {

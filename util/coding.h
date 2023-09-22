@@ -17,6 +17,7 @@
 #include "leveldb/slice.h"
 #include "port/port.h"
 
+//编码的接口与封装
 namespace leveldb {
 
 // Standard Put... routines append to a string
@@ -50,6 +51,8 @@ char* EncodeVarint64(char* dst, uint64_t value);
 
 // Lower-level versions of Put... that write directly into a character buffer
 // REQUIRES: dst has enough space for the value being written
+
+//固定长度只需转换为小端
 
 inline void EncodeFixed32(char* dst, uint32_t value) {
   uint8_t* const buffer = reinterpret_cast<uint8_t*>(dst);

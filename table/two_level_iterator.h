@@ -11,6 +11,8 @@ namespace leveldb {
 
 struct ReadOptions;
 
+//indexblock和datablock的iterator方法?用索引遍历数据?
+
 // Return a new two level iterator.  A two-level iterator contains an
 // index iterator whose values point to a sequence of blocks where
 // each block is itself a sequence of key,value pairs.  The returned

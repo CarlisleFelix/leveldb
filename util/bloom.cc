@@ -9,6 +9,7 @@
 
 namespace leveldb {
 
+//布隆过滤器的实现,done
 namespace {
 static uint32_t BloomHash(const Slice& key) {
   return Hash(key.data(), key.size(), 0xbc9f1d34);

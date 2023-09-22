@@ -8,6 +8,8 @@
 #ifndef STORAGE_LEVELDB_DB_LOG_FORMAT_H_
 #define STORAGE_LEVELDB_DB_LOG_FORMAT_H_
 
+//关于log的物理格式的一些设置,done
+
 namespace leveldb {
 namespace log {
 

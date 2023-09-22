@@ -40,6 +40,8 @@ namespace leveldb {
 
 namespace {
 
+//一些常量和辅助函数,done
+
 // Set by EnvPosixTestHelper::SetReadOnlyMMapLimit() and MaxOpenFiles().
 int g_open_read_only_file_limit = -1;
 
@@ -65,6 +67,8 @@ Status PosixError(const std::string& context, int error_number) {
     return Status::IOError(context, std::strerror(error_number));
   }
 }
+
+//对于limit的帮助类，实现了取用和还回
 
 // Helper class to limit resource usage to avoid exhaustion.
 // Currently used to limit read-only file descriptors and mmap file usage
@@ -129,6 +133,8 @@ class Limiter {
   std::atomic<int> acquires_allowed_;
 };
 
+//实现了posix系统下的统一的顺序读文件的抽象
+
 // Implements sequential read access in a file using read().
 //
 // Instances of this class are thread-friendly but not thread-safe, as required
@@ -173,6 +179,9 @@ class PosixSequentialFile final : public SequentialFile {
 // Instances of this class are thread-safe, as required by the RandomAccessFile
 // API. Instances are immutable and Read() only calls thread-safe library
 // functions.
+
+//实现了posix系统下的统一的随机读文件的抽象
+
 class PosixRandomAccessFile final : public RandomAccessFile {
  public:
   // The new instance takes ownership of |fd|. |fd_limiter| must outlive this
@@ -235,6 +244,9 @@ class PosixRandomAccessFile final : public RandomAccessFile {
 // Instances of this class are thread-safe, as required by the RandomAccessFile
 // API. Instances are immutable and Read() only calls thread-safe library
 // functions.
+
+//实现了posix系统下的统一的mmap读文件的抽象
+
 class PosixMmapReadableFile final : public RandomAccessFile {
  public:
   // mmap_base[0, length-1] points to the memory-mapped contents of the file. It
@@ -273,6 +285,8 @@ class PosixMmapReadableFile final : public RandomAccessFile {
   Limiter* const mmap_limiter_;
   const std::string filename_;
 };
+
+//实现了posix系统下的统一的可写文件的抽象
 
 class PosixWritableFile final : public WritableFile {
  public:
@@ -464,6 +478,8 @@ class PosixWritableFile final : public WritableFile {
   const std::string dirname_;  // The directory of filename_.
 };
 
+//文件锁的设置
+
 int LockOrUnlock(int fd, bool lock) {
   errno = 0;
   struct ::flock file_lock_info;
@@ -474,6 +490,8 @@ int LockOrUnlock(int fd, bool lock) {
   file_lock_info.l_len = 0;  // Lock/unlock entire file.
   return ::fcntl(fd, F_SETLK, &file_lock_info);
 }
+
+//文件锁的抽象结构
 
 // Instances are thread-safe because they are immutable.
 class PosixFileLock : public FileLock {
@@ -496,6 +514,9 @@ class PosixFileLock : public FileLock {
 // same process.
 //
 // Instances are thread-safe because all member data is guarded by a mutex.
+
+//维护一组被mutex保护的文件
+
 class PosixLockTable {
  public:
   bool Insert(const std::string& fname) LOCKS_EXCLUDED(mu_) {
@@ -514,6 +535,8 @@ class PosixLockTable {
   port::Mutex mu_;
   std::set<std::string> locked_files_ GUARDED_BY(mu_);
 };
+
+//实现posix环境下的env抽象
 
 class PosixEnv : public Env {
  public:
@@ -744,6 +767,7 @@ class PosixEnv : public Env {
     std::this_thread::sleep_for(std::chrono::microseconds(micros));
   }
 
+//这部分是一些线程相关的,挺有趣的
  private:
   void BackgroundThreadMain();
 
@@ -804,6 +828,8 @@ int MaxOpenFiles() {
 }
 
 }  // namespace
+
+//这个后台线程的wait是先解锁notify再加锁,然后获取到锁再继续,release是解除锁的绑定,实际没啥用
 
 PosixEnv::PosixEnv()
     : background_work_cv_(&background_work_mutex_),

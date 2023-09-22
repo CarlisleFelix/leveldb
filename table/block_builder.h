@@ -14,6 +14,8 @@ namespace leveldb {
 
 struct Options;
 
+//用于构建什么的block,哦应该是数据块,done
+
 class BlockBuilder {
  public:
   explicit BlockBuilder(const Options* options);

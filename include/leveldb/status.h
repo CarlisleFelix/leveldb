@@ -19,6 +19,8 @@
 #include "leveldb/export.h"
 #include "leveldb/slice.h"
 
+//status用于标识各个操作的结果情况 成功/不成功等等
+
 namespace leveldb {
 
 class LEVELDB_EXPORT Status {

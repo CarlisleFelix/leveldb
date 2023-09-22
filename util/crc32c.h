@@ -8,6 +8,8 @@
 #include <cstddef>
 #include <cstdint>
 
+//crc32的计算抽象,done
+
 namespace leveldb {
 namespace crc32c {
 

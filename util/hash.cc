@@ -17,6 +17,8 @@
   } while (0)
 #endif
 
+//哈希函数的实现,done
+
 namespace leveldb {
 
 uint32_t Hash(const char* data, size_t n, uint32_t seed) {

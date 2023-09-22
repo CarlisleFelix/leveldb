@@ -17,6 +17,8 @@
 #include "util/coding.h"
 #include "util/logging.h"
 
+//各种格式上的规定,主要是internal key相关,done
+
 namespace leveldb {
 
 // Grouping of constants.  We may want to make some of these

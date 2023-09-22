@@ -11,11 +11,14 @@
 
 namespace leveldb {
 
+//tablecache的实现
+
 struct TableAndFile {
   RandomAccessFile* file;
   Table* table;
 };
 
+//这个是在干嘛？？？只是释放了valule对应的tableandfile结构
 static void DeleteEntry(const Slice& key, void* value) {
   TableAndFile* tf = reinterpret_cast<TableAndFile*>(value);
   delete tf->table;
@@ -23,6 +26,7 @@ static void DeleteEntry(const Slice& key, void* value) {
   delete tf;
 }
 
+//释放arg1这个cache里面的arg2这个handle
 static void UnrefEntry(void* arg1, void* arg2) {
   Cache* cache = reinterpret_cast<Cache*>(arg1);
   Cache::Handle* h = reinterpret_cast<Cache::Handle*>(arg2);
@@ -40,15 +44,18 @@ TableCache::~TableCache() { delete cache_; }
 
 Status TableCache::FindTable(uint64_t file_number, uint64_t file_size,
                              Cache::Handle** handle) {
+//找一下cache里面装了指定的sstable没
   Status s;
   char buf[sizeof(file_number)];
   EncodeFixed64(buf, file_number);
   Slice key(buf, sizeof(buf));
   *handle = cache_->Lookup(key);
+//如果没有找到
   if (*handle == nullptr) {
     std::string fname = TableFileName(dbname_, file_number);
     RandomAccessFile* file = nullptr;
     Table* table = nullptr;
+//打开文件
     s = env_->NewRandomAccessFile(fname, &file);
     if (!s.ok()) {
       std::string old_fname = SSTTableFileName(dbname_, file_number);
@@ -69,12 +76,14 @@ Status TableCache::FindTable(uint64_t file_number, uint64_t file_size,
       TableAndFile* tf = new TableAndFile;
       tf->file = file;
       tf->table = table;
+//key是sstable的filenumber
       *handle = cache_->Insert(key, tf, 1, &DeleteEntry);
     }
   }
   return s;
 }
 
+//返回一个能遍历这个file_number的iterator?????
 Iterator* TableCache::NewIterator(const ReadOptions& options,
                                   uint64_t file_number, uint64_t file_size,
                                   Table** tableptr) {
@@ -97,6 +106,7 @@ Iterator* TableCache::NewIterator(const ReadOptions& options,
   return result;
 }
 
+//找到key对应的value并且，用给定的函数操纵一下
 Status TableCache::Get(const ReadOptions& options, uint64_t file_number,
                        uint64_t file_size, const Slice& k, void* arg,
                        void (*handle_result)(void*, const Slice&,
@@ -111,6 +121,7 @@ Status TableCache::Get(const ReadOptions& options, uint64_t file_number,
   return s;
 }
 
+//抹除这个file_number的sstable
 void TableCache::Evict(uint64_t file_number) {
   char buf[sizeof(file_number)];
   EncodeFixed64(buf, file_number);

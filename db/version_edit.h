@@ -15,6 +15,7 @@ namespace leveldb {
 
 class VersionSet;
 
+//存放于version中的文件元数据,一个version包含每个版本的文件信息，version中filemeta按层存储
 struct FileMetaData {
   FileMetaData() : refs(0), allowed_seeks(1 << 30), file_size(0) {}
 
@@ -26,6 +27,7 @@ struct FileMetaData {
   InternalKey largest;   // Largest internal key served by table
 };
 
+//增量形式的版本数据，不一定全有？？？
 class VersionEdit {
  public:
   VersionEdit() { Clear(); }

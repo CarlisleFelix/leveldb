@@ -39,6 +39,8 @@
 #endif  // defined(DeleteFile)
 #endif  // defined(_WIN32)
 
+//对于不同环境的统一抽象，提供基本的文件读写和文件抽象,done
+
 namespace leveldb {
 
 class FileLock;

@@ -6,6 +6,8 @@
 
 namespace leveldb {
 
+//不理解为什么要单独写一个文件出来
+
 FilterPolicy::~FilterPolicy() {}
 
 }  // namespace leveldb

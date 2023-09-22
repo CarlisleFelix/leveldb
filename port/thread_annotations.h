@@ -9,6 +9,8 @@
 // environments, the macros receive empty definitions.
 // Usage documentation: https://clang.llvm.org/docs/ThreadSafetyAnalysis.html
 
+//一些特有的编译器标记简写
+
 #if !defined(THREAD_ANNOTATION_ATTRIBUTE__)
 
 #if defined(__clang__)

@@ -6,6 +6,8 @@
 
 namespace leveldb {
 
+//基类iterator清理相关功能的实现,done
+
 Iterator::Iterator() {
   cleanup_head_.function = nullptr;
   cleanup_head_.next = nullptr;
@@ -40,6 +42,7 @@ void Iterator::RegisterCleanup(CleanupFunction func, void* arg1, void* arg2) {
 
 namespace {
 
+//完全空的iterator
 class EmptyIterator : public Iterator {
  public:
   EmptyIterator(const Status& s) : status_(s) {}

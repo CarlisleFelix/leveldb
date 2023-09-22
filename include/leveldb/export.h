@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
+//关于编译器可导出的一些标志,done
+
 #ifndef STORAGE_LEVELDB_INCLUDE_EXPORT_H_
 #define STORAGE_LEVELDB_INCLUDE_EXPORT_H_
 

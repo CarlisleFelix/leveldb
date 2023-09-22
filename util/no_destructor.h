@@ -8,6 +8,8 @@
 #include <type_traits>
 #include <utility>
 
+//函数里面有个全局变量？，为什么要这么包装呢，学习一下写法,done
+
 namespace leveldb {
 
 // Wraps an instance whose destructor is never called.

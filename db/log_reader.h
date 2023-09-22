@@ -11,6 +11,8 @@
 #include "leveldb/slice.h"
 #include "leveldb/status.h"
 
+//log的reader抽象,done
+
 namespace leveldb {
 
 class SequentialFile;
@@ -94,7 +96,7 @@ class Reader {
 
   // Offset of the last record returned by ReadRecord.
   uint64_t last_record_offset_;
-  // Offset of the first location past the end of buffer_.
+  // Offset of the first location past the end of buffer_. 这个东西是什么意思？？？当前buffer最后的记录的下一个偏移位置
   uint64_t end_of_buffer_offset_;
 
   // Offset at which to start looking for the first record to return
@@ -102,7 +104,7 @@ class Reader {
 
   // True if we are resynchronizing after a seek (initial_offset_ > 0). In
   // particular, a run of kMiddleType and kLastType records can be silently
-  // skipped in this mode
+  // skipped in this mode 这个东西又是什么意思
   bool resyncing_;
 };
 

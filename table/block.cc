@@ -15,6 +15,8 @@
 #include "util/coding.h"
 #include "util/logging.h"
 
+//block的实现,类中类的实现有点意思,done
+
 namespace leveldb {
 
 inline uint32_t Block::NumRestarts() const {
@@ -22,6 +24,7 @@ inline uint32_t Block::NumRestarts() const {
   return DecodeFixed32(data_ + size_ - sizeof(uint32_t));
 }
 
+//block从blockcontents(raw的内容中)提取各种信息
 Block::Block(const BlockContents& contents)
     : data_(contents.data.data()),
       size_(contents.data.size()),
@@ -44,6 +47,8 @@ Block::~Block() {
     delete[] data_;
   }
 }
+
+//limit是restart的开始，也是entry最多能到的地址
 
 // Helper routine: decode the next block entry starting at "p",
 // storing the number of shared key bytes, non_shared key bytes,
@@ -74,34 +79,39 @@ static inline const char* DecodeEntry(const char* p, const char* limit,
   return p;
 }
 
+//block类型的iterator
 class Block::Iter : public Iterator {
  private:
   const Comparator* const comparator_;
   const char* const data_;       // underlying block contents
-  uint32_t const restarts_;      // Offset of restart array (list of fixed32)
-  uint32_t const num_restarts_;  // Number of uint32_t entries in restart array
+  uint32_t const restarts_;      // Offset of restart array (list of fixed32) 提取出来的restart的偏移
+  uint32_t const num_restarts_;  // Number of uint32_t entries in restart array 提取出来的restart的数量
 
   // current_ is offset in data_ of current entry.  >= restarts_ if !Valid
-  uint32_t current_;
-  uint32_t restart_index_;  // Index of restart block in which current_ falls
-  std::string key_;
-  Slice value_;
+//看起来这些都是iter的实现细节和缓存功能
+  uint32_t current_; //当前的偏移
+  uint32_t restart_index_;  // Index of restart block in which current_ falls 当前的偏移对应的restart index
+  std::string key_; //当前的key
+  Slice value_; //值
   Status status_;
 
   inline int Compare(const Slice& a, const Slice& b) const {
     return comparator_->Compare(a, b);
   }
 
+//value里面存的应该是一条完整的记录
   // Return the offset in data_ just past the end of the current entry.
   inline uint32_t NextEntryOffset() const {
     return (value_.data() + value_.size()) - data_;
   }
 
+//得到第index个restart点
   uint32_t GetRestartPoint(uint32_t index) {
     assert(index < num_restarts_);
     return DecodeFixed32(data_ + restarts_ + index * sizeof(uint32_t));
   }
 
+//这里没有改current，会在parsenextkey里面改
   void SeekToRestartPoint(uint32_t index) {
     key_.clear();
     restart_index_ = index;
@@ -112,6 +122,7 @@ class Block::Iter : public Iterator {
     value_ = Slice(data_ + offset, 0);
   }
 
+//看起来是预提取
  public:
   Iter(const Comparator* comparator, const char* data, uint32_t restarts,
        uint32_t num_restarts)
@@ -161,6 +172,7 @@ class Block::Iter : public Iterator {
     } while (ParseNextKey() && NextEntryOffset() < original);
   }
 
+//通过key进行二分查找
   void Seek(const Slice& target) override {
     // Binary search in restart array to find the last restart point
     // with a key < target
@@ -226,11 +238,13 @@ class Block::Iter : public Iterator {
     }
   }
 
+//先找到第0个restart点，解码出对应的data的点，然后用parse填一些信息
   void SeekToFirst() override {
     SeekToRestartPoint(0);
     ParseNextKey();
   }
 
+//找到最后一个restart点，解码出对应data的点，找到这个restart区域最后的点
   void SeekToLast() override {
     SeekToRestartPoint(num_restarts_ - 1);
     while (ParseNextKey() && NextEntryOffset() < restarts_) {
@@ -247,6 +261,7 @@ class Block::Iter : public Iterator {
     value_.clear();
   }
 
+//根据当前的偏移量填写各个字段
   bool ParseNextKey() {
     current_ = NextEntryOffset();
     const char* p = data_ + current_;

@@ -10,6 +10,8 @@
 #include "port/port.h"
 #include "util/coding.h"
 
+//internal key各种方法的实现
+
 namespace leveldb {
 
 static uint64_t PackSequenceAndType(uint64_t seq, ValueType t) {
@@ -18,6 +20,7 @@ static uint64_t PackSequenceAndType(uint64_t seq, ValueType t) {
   return (seq << 8) | t;
 }
 
+//把parse出来的key按格式写到string里面
 void AppendInternalKey(std::string* result, const ParsedInternalKey& key) {
   result->append(key.user_key.data(), key.user_key.size());
   PutFixed64(result, PackSequenceAndType(key.sequence, key.type));
@@ -44,6 +47,7 @@ const char* InternalKeyComparator::Name() const {
   return "leveldb.InternalKeyComparator";
 }
 
+//先比key再比别的
 int InternalKeyComparator::Compare(const Slice& akey, const Slice& bkey) const {
   // Order by:
   //    increasing user key (according to user-supplied comparator)
@@ -62,6 +66,7 @@ int InternalKeyComparator::Compare(const Slice& akey, const Slice& bkey) const {
   return r;
 }
 
+//找到这两个key之前长度最短的string,然后存到start里面返回，都是internalkey形式的
 void InternalKeyComparator::FindShortestSeparator(std::string* start,
                                                   const Slice& limit) const {
   // Attempt to shorten the user portion of the key
@@ -81,6 +86,7 @@ void InternalKeyComparator::FindShortestSeparator(std::string* start,
   }
 }
 
+//找到这个key之后最短的比这个key大的继承,大小都是以userkey为单位的，但是来去都是用internelkey的格式
 void InternalKeyComparator::FindShortSuccessor(std::string* key) const {
   Slice user_key = ExtractUserKey(*key);
   std::string tmp(user_key.data(), user_key.size());
@@ -98,6 +104,7 @@ void InternalKeyComparator::FindShortSuccessor(std::string* key) const {
 
 const char* InternalFilterPolicy::Name() const { return user_policy_->Name(); }
 
+//感觉像是都包了一层
 void InternalFilterPolicy::CreateFilter(const Slice* keys, int n,
                                         std::string* dst) const {
   // We rely on the fact that the code in table.cc does not mind us

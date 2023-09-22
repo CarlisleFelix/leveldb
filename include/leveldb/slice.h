@@ -22,6 +22,8 @@
 
 #include "leveldb/export.h"
 
+//变长切片
+
 namespace leveldb {
 
 class LEVELDB_EXPORT Slice {
